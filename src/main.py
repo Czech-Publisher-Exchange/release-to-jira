@@ -1,7 +1,7 @@
 import os
 from pprint import pprint
 
-from jira_api import add_release_to_issue, get_or_create_release
+from jira_api import add_release_to_issue, get_or_create_release, mark_release_as_released
 from notes_parser import extract_changes, extract_issue_id, extract_issue_ids_from_commits
 
 print("=" * 60)
@@ -9,7 +9,9 @@ print(f"Release to JIRA Action")
 print("=" * 60)
 
 release_name = os.environ["GITHUB_REF_NAME"]
+mark_released = os.environ.get("INPUT_JIRA_MARK_RELEASED", "false").lower() == "true"
 print(f"\n📦 Processing release: {release_name}")
+print(f"   Mark as released: {mark_released}")
 
 release = get_or_create_release(release_name)
 print(f"✓ JIRA Release created/found: {release.get('name')} (ID: {release.get('id')})")
@@ -77,3 +79,14 @@ for issue_id in sorted(issue_ids):
 print("\n" + "=" * 60)
 print(f"✅ Complete: {success_count}/{len(issue_ids)} issue(s) updated successfully")
 print("=" * 60)
+
+# Mark release as released if requested
+if mark_released:
+    print("\n" + "-" * 60)
+    print("🏁 Marking release as released...")
+    print("-" * 60)
+    try:
+        mark_release_as_released(release.get('id'))
+        print(f"✓ Release {release_name} marked as released")
+    except Exception as e:
+        print(f"✗ Failed to mark release as released: {e}")

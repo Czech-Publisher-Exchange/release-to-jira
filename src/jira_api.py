@@ -51,3 +51,18 @@ def add_release_to_issue(release_name, issue):
     )
     response.raise_for_status()
     return response.status_code == 204
+
+
+def mark_release_as_released(release_id):
+    """Mark a JIRA release as released with the current date."""
+    from datetime import date
+    
+    response = put(
+        f"version/{release_id}",
+        {
+            "released": True,
+            "releaseDate": date.today().isoformat()
+        }
+    )
+    response.raise_for_status()
+    return response.status_code == 200
