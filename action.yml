@@ -21,6 +21,8 @@ runs:
   using: composite
   steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     - name: Get or create Github release
       shell: bash
       working-directory: ${{ github.action_path }}
@@ -37,6 +39,23 @@ runs:
             -f name='${{ github.ref_name }}' \
             -F generate_release_notes=true \
           --jq .body > notes.md
+    - name: Extract commit messages
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        # Get the previous tag
+        PREVIOUS_TAG=$(git -C ${{ github.workspace }} describe --abbrev=0 --tags ${{ github.ref_name }}^ 2>/dev/null || echo "")
+        
+        if [ -z "$PREVIOUS_TAG" ]; then
+          echo "No previous tag found, getting all commits"
+          git -C ${{ github.workspace }} log ${{ github.ref_name }} --pretty=format:"%s%n%b" > commits.txt
+        else
+          echo "Getting commits between $PREVIOUS_TAG and ${{ github.ref_name }}"
+          git -C ${{ github.workspace }} log $PREVIOUS_TAG..${{ github.ref_name }} --pretty=format:"%s%n%b" > commits.txt
+        fi
+        
+        echo "Commit messages extracted:"
+        cat commits.txt
     - name: Update JIRA
       shell: bash
       working-directory: ${{ github.action_path }}

@@ -44,3 +44,23 @@ def extract_issue_id(change):
     if not matches:
         return None
     return matches[0]
+
+
+def extract_issue_ids_from_commits():
+    """Extract all Jira issue IDs from commit messages."""
+    issue_ids = set()
+    
+    try:
+        with open("commits.txt", "r") as f:
+            content = f.read()
+        
+        if not content.strip():
+            print("  ⚠ commits.txt is empty")
+            return []
+        
+        matches = re.findall(ISSUE_PATTERN, content)
+        issue_ids.update(matches)
+    except FileNotFoundError:
+        print("  ⚠ No commits.txt file found")
+    
+    return list(issue_ids)
