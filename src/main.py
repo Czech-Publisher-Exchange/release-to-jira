@@ -9,6 +9,11 @@ print(f"Release to JIRA Action")
 print("=" * 60)
 
 release_name = os.environ["GITHUB_REF_NAME"]
+is_pre_release = os.environ.get("IS_PRE_RELEASE", "false").lower() == "true"
+
+if is_pre_release:
+    release_name = f"{release_name} (pre-release)"
+
 mark_released = os.environ.get("INPUT_JIRA_MARK_RELEASED", "false").lower() == "true"
 print(f"\n📦 Processing release: {release_name}")
 print(f"   Mark as released: {mark_released}")

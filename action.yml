@@ -43,6 +43,14 @@ runs:
             -f name='${{ github.ref_name }}' \
             -F generate_release_notes=true \
           --jq .body > notes.md
+    - name: Check pre-release status
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        IS_PRE_RELEASE=$(gh api /repos/${{ github.repository }}/releases/tags/${{ github.ref_name }} --jq .prerelease)
+        echo "IS_PRE_RELEASE=$IS_PRE_RELEASE" >> $GITHUB_ENV
     - name: Extract commit messages
       shell: bash
       working-directory: ${{ github.action_path }}
@@ -69,4 +77,5 @@ runs:
         INPUT_JIRA_USER: ${{ inputs.jira_user }}
         INPUT_JIRA_TOKEN: ${{ inputs.jira_token }}
         INPUT_JIRA_MARK_RELEASED: ${{ inputs.jira_mark_released }}
+        IS_PRE_RELEASE: ${{ env.IS_PRE_RELEASE }}
       run: python ./src/main.py
