@@ -8,14 +8,22 @@ print("=" * 60)
 print(f"Release to JIRA Action")
 print("=" * 60)
 
+# Get repository name from GITHUB_REPOSITORY (format: owner/repo)
+github_repository = os.environ.get("GITHUB_REPOSITORY", "")
+library_name = github_repository.split("/")[-1] if github_repository else "unknown"
+
 release_name = os.environ["GITHUB_REF_NAME"]
 is_pre_release = os.environ.get("IS_PRE_RELEASE", "false").lower() == "true"
+
+# Prefix release name with library name
+release_name = f"{library_name} {release_name}"
 
 if is_pre_release:
     release_name = f"{release_name} (pre-release)"
 
 mark_released = os.environ.get("INPUT_JIRA_MARK_RELEASED", "false").lower() == "true"
 print(f"\n📦 Processing release: {release_name}")
+print(f"   Library: {library_name}")
 print(f"   Mark as released: {mark_released}")
 
 release = get_or_create_release(release_name)

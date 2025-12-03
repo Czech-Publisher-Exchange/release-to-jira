@@ -4,6 +4,8 @@ A GitHub action to automatically create releases on JIRA.
 
 Creates a release on Github. Uses its auto-generated description to find related JIRA issues and updates their "Fix versions" field. If a release matching the tag doesn't exist on JIRA, it will be automatically created.
 
+The JIRA release name will be prefixed with the repository name (e.g., `cpex-package v1.2.3`).
+
 This flow assumes auto-generated release notes will include JIRA issue keys. This can be achieved by including JIRA issue key in PR titles.
 
 ## Inputs
